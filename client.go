@@ -19,7 +19,7 @@ type Error struct {
 	Parameters interface{} `json:"error_parameters"`
 	Detail     interface{} `json:"error_detail"`
 	Propagate  bool        `json:"error_propagate"`
-	Request    struct {
+	Request struct {
 		URL   string `json:"url"`
 		Query string `json:"query_string"`
 	} `json:"request"`
