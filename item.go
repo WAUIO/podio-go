@@ -203,8 +203,8 @@ type ImageFieldSettings struct {
 
 // DateValue is the value for fields of type `date`
 type DateValue struct {
-	Start *Time `json:"start_utc"`
-	End   *Time `json:"end_utc"`
+	Start *Time `json:"start"`
+	End   *Time `json:"end"`
 }
 
 // DateFieldSettings defines the capabilities of a date field
@@ -385,7 +385,7 @@ type CalculationFieldSettings struct {
 	Color      string `json:"color"`
 	Expression string `json:"expression"`
 	Time       string `json:"time"`
-	Calendar   string `json:"calendar"`
+	Calendar   bool   `json:"calendar"`
 	Decimals   int    `json:"decimals"`
 	Unit       string `json:"unit"`
 }
