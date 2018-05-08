@@ -24,8 +24,8 @@ type Item struct {
 	ExternalId         string   `json:"external_id"`
 }
 
-// partialField is used for JSON unmarshalling
-type partialField struct {
+// PartialField is used for JSON unmarshalling
+type PartialField struct {
 	Id         int64  `json:"field_id"`
 	ExternalId string `json:"external_id"`
 	Type       string `json:"type"`
@@ -44,7 +44,7 @@ type partialField struct {
 
 // Field describes a Podio field object
 type Field struct {
-	partialField
+	PartialField
 	Values interface{}
 }
 
@@ -67,8 +67,8 @@ func (f *Field) unmarshalInto(val, settings interface{}) error {
 var errOnUnknownField bool
 
 func (f *Field) UnmarshalJSON(data []byte) error {
-	f.partialField = partialField{}
-	if err := json.Unmarshal(data, &f.partialField); err != nil {
+	f.PartialField = PartialField{}
+	if err := json.Unmarshal(data, &f.PartialField); err != nil {
 		return err
 	}
 	var err error
