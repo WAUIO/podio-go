@@ -9,11 +9,14 @@ import (
 )
 
 type File struct {
-	Id   int64  `json:"file_id"`
-	Name string `json:"name"`
-	Link string `json:"link"`
-	Size int    `json:"size"`
-	Push Push   `json:"push"`
+	Id                int64  `json:"file_id"`
+	Name              string `json:"name"`
+	Link              string `json:"link"`
+	Size              int    `json:"size"`
+	Push              Push   `json:"push"`
+	MimeType          string `json:"mimetype"`
+	HostedBy          string `json:"hosted_by"`
+	HumanizedHostedBy string `json:"hosted_by_humanized_name"`
 }
 
 // https://developers.podio.com/doc/files/get-files-4497983
