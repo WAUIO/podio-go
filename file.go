@@ -9,7 +9,7 @@ import (
 )
 
 type File struct {
-	Id                int64  `json:"file_id"`
+	Id                uint64  `json:"file_id"`
 	Name              string `json:"name"`
 	Link              string `json:"link"`
 	Size              int    `json:"size"`

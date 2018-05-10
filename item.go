@@ -7,7 +7,7 @@ import (
 
 // Item describes a Podio item object
 type Item struct {
-	Id                 int64    `json:"item_id"`
+	Id                 uint64    `json:"item_id"`
 	AppItemId          int      `json:"app_item_id"`
 	FormattedAppItemId string   `json:"app_item_id_formatted"`
 	Title              string   `json:"title"`
@@ -26,7 +26,7 @@ type Item struct {
 
 // PartialField is used for JSON unmarshalling
 type PartialField struct {
-	Id         int64  `json:"field_id"`
+	Id         uint64  `json:"field_id"`
 	ExternalId string `json:"external_id"`
 	Type       string `json:"type"`
 	Label      string `json:"label"`
