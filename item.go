@@ -56,7 +56,7 @@ func (f *Field) unmarshalInto(val, settings interface{}) error {
 	// allow for tests that does not set field configs.
 	if settings != nil && len(f.Config.SettingsJSON) > 0 {
 		if err := json.Unmarshal(f.Config.SettingsJSON, settings); err != nil {
-			return fmt.Errorf("cannot unmarshal %q into %T: %v", f.Config.SettingsJSON, settings, err)
+			//return fmt.Errorf("cannot unmarshal %q into %T: %v", f.Config.SettingsJSON, settings, err)
 		}
 	}
 
@@ -348,8 +348,8 @@ type TelValue struct {
 
 // PhoneValue contains the value of a phone field - that is phone numbers.
 type PhoneValue struct {
-	Value string
-	Type  string // Home, work, fax ...
+	Value string `json:"value"`
+	Type  string `json:"type"` // Home, work, fax ...
 }
 
 // PhoneFieldSettings defines the settings for the given phone field.
@@ -360,8 +360,8 @@ type PhoneFieldSettings struct {
 
 // EmailValue holds email information of contacts fields.
 type EmailValue struct {
-	Value string // The actual email
-	Type  string // home or work email?
+	Value string `json:"value"` // The actual email
+	Type  string `json:"type"` // home or work email?
 }
 
 // EmailFieldSettings carries the configuration of an email field
