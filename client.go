@@ -13,6 +13,7 @@ import (
 type Client struct {
 	httpClient *http.Client
 	authToken  *AuthToken
+	Emitter    EventEmitterPodioWrapper
 }
 
 type Error struct {
@@ -31,15 +32,26 @@ func (p *Error) Error() string {
 	return fmt.Sprintf("%s: %s", p.Type, p.Description)
 }
 
-func NewClient(authToken *AuthToken) *Client {
+func NewClient(authToken *AuthToken, emiterConf func(e EventEmitterPodioWrapper)) *Client {
+	Emitter := GetPodioEmitter()
+	emiterConf(Emitter)
+
 	return &Client{
 		httpClient: &http.Client{},
 		authToken:  authToken,
+		Emitter:    Emitter,
 	}
 }
 
 func (client *Client) Request(method string, path string, headers map[string]string, body io.Reader, out interface{}) error {
 	req, err := http.NewRequest(method, "https://api.podio.com"+path, body)
+
+	client.Emitter.FireBackground("podio.request", method, req.URL.Path, struct {
+		Form interface{} `json:"form"`
+	}{
+		Form:req.PostForm,
+	})
+
 	if err != nil {
 		return err
 	}
@@ -66,8 +78,13 @@ func (client *Client) Request(method string, path string, headers map[string]str
 		if err != nil {
 			return errors.New(string(respBody))
 		}
+
+		client.Emitter.FireBackground("podio.error", podioErr, resp.StatusCode)
+
 		return podioErr
 	}
+
+	client.Emitter.FireBackground("podio.response", respBody, resp.Header)
 
 	if out != nil {
 		return json.Unmarshal(respBody, out)

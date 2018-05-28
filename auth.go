@@ -3,10 +3,12 @@ package podio
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	_ "github.com/wauio/event-emitter"
 )
 
 type AuthToken struct {
@@ -16,6 +18,16 @@ type AuthToken struct {
 	RefreshToken  string                 `json:"refresh_token"`
 	Ref           map[string]interface{} `json:"ref"`
 	TransferToken string                 `json:"transfer_token"`
+}
+
+func (oauth *AuthToken) blurToken() (blured string) {
+	if oauth == nil {
+		return
+	}
+
+	blured = oauth.AccessToken[:len(oauth.AccessToken) - 20] + strings.Repeat("x", 20)
+
+	return
 }
 
 func AuthWithUserCredentials(clientId string, clientSecret string, username string, password string) (*AuthToken, error) {
@@ -57,6 +69,7 @@ func AuthWithAuthCode(clientId, clientSecret, authCode, redirectUri string) (*Au
 func authRequest(data url.Values) (*AuthToken, error) {
 	var authToken AuthToken
 
+	Emitter.FireBackground("podio.request", "POST", "/oauth/token", data)
 	resp, err := http.PostForm("https://api.podio.com/oauth/token", data)
 	if err != nil {
 		return nil, err
@@ -65,6 +78,7 @@ func authRequest(data url.Values) (*AuthToken, error) {
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		Emitter.FireBackground("error", err)
 		return nil, err
 	}
 
@@ -72,13 +86,20 @@ func authRequest(data url.Values) (*AuthToken, error) {
 		podioErr := &Error{}
 		err := json.Unmarshal(respBody, podioErr)
 		if err != nil {
+			Emitter.FireBackground("error", errors.New(string(respBody)))
 			return nil, errors.New(string(respBody))
 		}
+
+		Emitter.FireBackground("podio.error", podioErr, resp.StatusCode)
+
 		return nil, podioErr
 	}
 
+	Emitter.FireBackground("podio.response", respBody, resp.Header)
+
 	err = json.Unmarshal(respBody, &authToken)
 	if err != nil {
+		Emitter.FireBackground("error", err)
 		return nil, err
 	}
 

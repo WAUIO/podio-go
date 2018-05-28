@@ -33,6 +33,12 @@ func (client *Client) GetFile(fileId int) (file *File, err error) {
 
 func (client *Client) GetFileContents(url string) ([]byte, error) {
 	link := fmt.Sprintf("%s?oauth_token=%s", url, client.authToken.AccessToken)
+	client.Emitter.FireBackground("podio.request", "GET", url, struct {
+		Token string `json:"access_token"`
+	}{
+		client.authToken.blurToken(),
+	})
+
 	resp, err := http.Get(link)
 
 	if err != nil {
