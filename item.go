@@ -143,7 +143,17 @@ func (f *Field) UnmarshalJSON(data []byte) error {
 	case "calculation":
 		values, cfg := []CalculationValue{}, CalculationFieldSettings{}
 		err = f.unmarshalInto(&values, &cfg)
-		f.Values, f.Config.Settings = values, cfg
+
+		if cfg.ReturnType == "date" {
+			dvalues := []CalculationDateValue{}
+			if e := json.Unmarshal(f.ValuesJSON, &dvalues); e == nil {
+				f.Values, f.Config.Settings = dvalues, cfg
+			} else {
+				f.Values, f.Config.Settings = nil, cfg
+			}
+		} else {
+			f.Values, f.Config.Settings = values, cfg
+		}
 	case "phone":
 		values, cfg := []PhoneValue{}, PhoneFieldSettings{}
 		err = f.unmarshalInto(&values, &cfg)
@@ -374,6 +384,16 @@ type EmailFieldSettings struct {
 // CalculationValue is the value for fields of type calculation
 type CalculationValue struct {
 	Value string `json:"value"`
+}
+
+// CalculationDateValue is the value for fields of type calculation
+type CalculationDateValue struct {
+	Start        string `json:"start"`
+	StartDate    string `json:"start_date"`
+	StartTime    string `json:"start_time"`
+	StartUtc     string `json:"start_utc"`
+	StartDateUtc string `json:"start_date_utc"`
+	StartTimeUtc string `json:"start_time_utc"`
 }
 
 // CalculationFieldSettings holds information about a calculation field, including the
