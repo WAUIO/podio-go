@@ -18,6 +18,6 @@ func (p *Push) Subscribe(c *bayeux.Client, out chan<- *bayeux.Message) error {
 	})
 }
 
-func (p *Push) Unsubscribe(c *bayeux.Client, pattern string) error {
-	return c.Unsubscribe(pattern)
+func (p *Push) Unsubscribe(c *bayeux.Client) error {
+	return c.Unsubscribe(p.Channel)
 }
