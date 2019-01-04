@@ -1,7 +1,7 @@
 package podio
 
 import (
-	"github.com/andreas/go-bayeux-client"
+	"github.com/wauio/go-bayeux-client"
 )
 
 type Push struct {
@@ -16,4 +16,8 @@ func (p *Push) Subscribe(c *bayeux.Client, out chan<- *bayeux.Message) error {
 		"private_pub_signature": p.Signature,
 		"private_pub_timestamp": &p.Timestamp,
 	})
+}
+
+func (p *Push) Unsubscribe(c *bayeux.Client, pattern string) error {
+	return c.Unsubscribe(pattern)
 }
