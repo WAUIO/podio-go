@@ -19,5 +19,7 @@ func (p *Push) Subscribe(c *bayeux.Client, out chan<- *bayeux.Message) error {
 }
 
 func (p *Push) Unsubscribe(c *bayeux.Client) error {
+	defer c.ForgetSubscription(p.Channel)
+
 	return c.Unsubscribe(p.Channel)
 }
