@@ -8,12 +8,14 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"golang.org/x/net/context"
 )
 
 type Client struct {
 	httpClient *http.Client
 	authToken  *AuthToken
 	Emitter    EventEmitterPodioWrapper
+	Context    context.Context
 }
 
 type Error struct {
@@ -41,6 +43,11 @@ func NewClient(authToken *AuthToken, emiterConf func(e EventEmitterPodioWrapper)
 		authToken:  authToken,
 		Emitter:    Emitter,
 	}
+}
+
+func (c *Client) WithContext(ctx context.Context) *Client{
+	c.Context = ctx
+	return c
 }
 
 func (client *Client) Request(method string, path string, headers map[string]string, body io.Reader, out interface{}) error {
@@ -84,7 +91,7 @@ func (client *Client) Request(method string, path string, headers map[string]str
 		return podioErr
 	}
 
-	client.Emitter.FireBackground("podio.response", respBody, resp.Header)
+	client.Emitter.FireBackground("podio.response", client.Context, respBody, resp.Header)
 
 	if out != nil {
 		return json.Unmarshal(respBody, out)
