@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/andreas/podio-go"
+	"github.com/wauio/podio-go"
 )
 
 func main() {
@@ -13,7 +13,9 @@ func main() {
 		return
 	}
 
-	client := podio.NewClient(authToken)
+	client := podio.NewClient(authToken, func(e podio.EventEmitterPodioWrapper) {
+		
+	})
 	orgs, err := client.GetOrganizations()
 
 	if err != nil {
