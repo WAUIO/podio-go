@@ -7,7 +7,7 @@ import (
 
 // Item describes a Podio item object
 type Item struct {
-	Id                 uint64    `json:"item_id"`
+	Id                 uint64   `json:"item_id"`
 	AppItemId          int      `json:"app_item_id"`
 	FormattedAppItemId string   `json:"app_item_id_formatted"`
 	Title              string   `json:"title"`
@@ -26,7 +26,7 @@ type Item struct {
 
 // PartialField is used for JSON unmarshalling
 type PartialField struct {
-	Id         uint64  `json:"field_id"`
+	Id         uint64 `json:"field_id"`
 	ExternalId string `json:"external_id"`
 	Type       string `json:"type"`
 	Label      string `json:"label"`
@@ -79,9 +79,45 @@ func (f *Field) UnmarshalJSON(data []byte) error {
 		err = f.unmarshalInto(&values, &cfg)
 		f.Values, f.Config.Settings = values, cfg
 	case "date":
-		values, cfg := []DateValue{}, DateFieldSettings{}
+		t := []UTCDatetimeValue{}
+		values, cfg := []UTCDatetimeValue{}, DateFieldSettings{}
 		err = f.unmarshalInto(&values, &cfg)
-		f.Values, f.Config.Settings = values, cfg
+		t, f.Config.Settings = values, cfg
+
+		switch {
+		case len(values) > 0 && cfg.Time == "enabled":
+			t_s := &Time{}
+			if strVal, ok := values[0].Start.(string); ok {
+				if e := t_s.UnmarshalJSON([]byte(strVal)); e == nil {
+					t[0].Start = t_s
+				}
+			}
+
+			t_e := &Time{}
+			if strVal, ok := values[0].End.(string); ok {
+				if e := t_e.UnmarshalJSON([]byte(strVal)); e == nil {
+					t[0].End = t_e
+				}
+			}
+
+		case len(values) > 0 && cfg.Time == "disabled":
+			t_s := &Date{}
+			if strVal, ok := values[0].Start.(string); ok {
+				if e := t_s.UnmarshalJSON([]byte(strVal)); e == nil {
+					t[0].Start = t_s
+				}
+			}
+
+			t_e := &Date{}
+			if strVal, ok := values[0].End.(string); ok {
+				if e := t_e.UnmarshalJSON([]byte(strVal)); e == nil {
+					t[0].End = t_e
+				}
+			}
+		}
+
+		f.Values = t
+
 	case "text":
 		values, cfg := []TextValue{}, TextFieldSettings{}
 		err = f.unmarshalInto(&values, &cfg)
@@ -213,9 +249,18 @@ type ImageFieldSettings struct {
 
 // DateValue is the value for fields of type `date`
 type DateValue struct {
+	// these values are already with timezone
 	Start *Time `json:"start"`
 	End   *Time `json:"end"`
 }
+
+// DatetimeValue is the value for fields of type `date`
+type UTCDatetimeValue struct {
+	// piece of value can be *Time (is time enabled) or *Date (if time disabled)
+	Start interface{} `json:"start_utc"`
+	End   interface{} `json:"end_utc"`
+}
+
 
 // DateFieldSettings defines the capabilities of a date field
 type DateFieldSettings struct {
@@ -371,7 +416,7 @@ type PhoneFieldSettings struct {
 // EmailValue holds email information of contacts fields.
 type EmailValue struct {
 	Value string `json:"value"` // The actual email
-	Type  string `json:"type"` // home or work email?
+	Type  string `json:"type"`  // home or work email?
 }
 
 // EmailFieldSettings carries the configuration of an email field

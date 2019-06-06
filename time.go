@@ -13,7 +13,7 @@ type Time struct {
 	time.Time
 }
 
-const podioLayout = "2006-01-02 15:04:05"
+const podioDatetimeLayout = "2006-01-02 15:04:05"
 
 func (t *Time) UnmarshalJSON(buf []byte) error {
 	// apparently we need to trim "
@@ -25,7 +25,7 @@ func (t *Time) UnmarshalJSON(buf []byte) error {
 		return nil
 	}
 
-	tm, err := time.ParseInLocation(podioLayout, raw, time.UTC)
+	tm, err := time.ParseInLocation(podioDatetimeLayout, raw, time.UTC)
 	if err == nil {
 		t.Time = tm
 	}
@@ -33,7 +33,35 @@ func (t *Time) UnmarshalJSON(buf []byte) error {
 }
 
 func (t *Time) MarshalJSON() ([]byte, error) {
-	s := t.Format(podioLayout)
+	s := t.Format(podioDatetimeLayout)
+	return []byte(fmt.Sprintf(`"%s"`, s)), nil
+}
+
+type Date struct {
+	time.Time
+}
+
+const podioDateLayout = "2006-01-02"
+
+func (d *Date) UnmarshalJSON(buf []byte) error {
+	// apparently we need to trim "
+	raw := strings.Trim(string(buf), "\"")
+
+	if raw == "null" {
+		// on null value we set the time to the time.Time zero value
+		d.Time = time.Time{}
+		return nil
+	}
+
+	tm, err := time.ParseInLocation(podioDateLayout, raw, time.UTC)
+	if err == nil {
+		d.Time = tm
+	}
+	return err
+}
+
+func (d *Date) MarshalJSON() ([]byte, error) {
+	s := d.Format(podioDateLayout)
 	return []byte(fmt.Sprintf(`"%s"`, s)), nil
 }
 
