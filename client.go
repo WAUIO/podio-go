@@ -16,6 +16,7 @@ type Client struct {
 	authToken  *AuthToken
 	Emitter    EventEmitterPodioWrapper
 	Context    context.Context
+	ServiceEndpoint
 }
 
 type Error struct {
@@ -38,30 +39,38 @@ func NewClient(authToken *AuthToken, emiterConf func(e EventEmitterPodioWrapper)
 	Emitter := GetPodioEmitter()
 	emiterConf(Emitter)
 
-	return &Client{
+	client :=  &Client{
 		httpClient: &http.Client{},
 		authToken:  authToken,
 		Emitter:    Emitter,
 	}
+
+	client.URL = "https://api.podio.com"
+
+	if useStubApi {
+		client.useStub()
+	}
+
+	return client
 }
 
-func (c *Client) WithContext(ctx context.Context) *Client{
-	c.Context = ctx
-	return c
+func (client *Client) WithContext(ctx context.Context) *Client{
+	client.Context = ctx
+	return client
 }
 
 func (client *Client) Request(method string, path string, headers map[string]string, body io.Reader, out interface{}) error {
-	req, err := http.NewRequest(method, "https://api.podio.com"+path, body)
+	req, err := http.NewRequest(method, client.URL + path, body)
+
+	if err != nil {
+		return err
+	}
 
 	client.Emitter.FireBackground("podio.request", method, req.URL.Path, struct {
 		Form interface{} `json:"form"`
 	}{
 		Form:req.PostForm,
 	})
-
-	if err != nil {
-		return err
-	}
 
 	for k, v := range headers {
 		req.Header.Add(k, v)
