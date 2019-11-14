@@ -115,7 +115,7 @@ func (client *Client) useStub() {
 
 		w.Header().Set("X-Podio-Auth-Ref", "app_19162664")
 		w.Header().Set("X-Rate-Limit-Limit", "1000")
-		w.Header().Set("X-Rate-Limit-Remaining", random(0, 1000))
+		w.Header().Set("X-Rate-Limit-Remaining", fmt.Sprintf("%d", random(0, 1000)))
 
 		buff := []byte(resp)
 
