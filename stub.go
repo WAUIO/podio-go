@@ -100,7 +100,7 @@ func (client *Client) useStub() {
     "app_id": 19162664
   },
   "push": {
-    "expires_in": 30,
+    "expires_in": 300,
     "channel": "/item/%s",
     "signature": "11a8bd86ad2c442023d5be1509c1d85e4e0404d0"
   },
@@ -112,6 +112,10 @@ func (client *Client) useStub() {
 			http.Error(w, fmt.Sprintf("%s not handled", r.RequestURI), http.StatusNotFound)
 			return
 		}
+
+		w.Header().Set("X-Podio-Auth-Ref", "app_19162664")
+		w.Header().Set("X-Rate-Limit-Limit", "1000")
+		w.Header().Set("X-Rate-Limit-Remaining", random(0, 1000))
 
 		buff := []byte(resp)
 
