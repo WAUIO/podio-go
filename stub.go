@@ -43,6 +43,14 @@ func UseStub() {
 	useStubApi = true
 }
 
+var randomErrCode = func() int {
+	return random(399, 520)
+}
+
+func (client *Client) SetErrCodeFunc(errCodeFunc func() int) {
+	randomErrCode = errCodeFunc
+}
+
 // only appliable for usual request, authentication are not affected
 func (client *Client) useStub() {
 	var api = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +63,7 @@ func (client *Client) useStub() {
 		w.Header().Set("X-Rate-Limit-Remaining", fmt.Sprintf("%d", random(0, 1000)))
 
 		// simulate 4xx and some 5xx errors
-		errCode := random(399, 520)
+		errCode := randomErrCode()
 		switch errCode {
 		case 400:
 			http.Error(w, podioError(r, "bad_request"), http.StatusBadRequest)
