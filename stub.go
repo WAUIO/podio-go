@@ -47,7 +47,7 @@ var randomErrCode = func() int {
 	return random(399, 520)
 }
 
-func (client *Client) SetErrCodeFunc(errCodeFunc func() int) {
+func SetErrCodeFunc(errCodeFunc func() int) {
 	randomErrCode = errCodeFunc
 }
 
