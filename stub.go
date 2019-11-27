@@ -50,6 +50,10 @@ func (client *Client) useStub() {
 
 		time.Sleep(time.Duration(random(500, 1500)) * time.Millisecond)
 
+		w.Header().Set("X-Podio-Auth-Ref", "app_19162664")
+		w.Header().Set("X-Rate-Limit-Limit", "1000")
+		w.Header().Set("X-Rate-Limit-Remaining", fmt.Sprintf("%d", random(0, 1000)))
+
 		// simulate 4xx and some 5xx errors
 		errCode := random(399, 520)
 		switch errCode {
@@ -75,6 +79,7 @@ func (client *Client) useStub() {
 			http.Error(w, podioError(r, "gone"), http.StatusGone)
 			return
 		case 420:
+			w.Header().Set("X-Rate-Limit-Remaining", "0")
 			http.Error(w, podioError(r, "hit rate limit", "rate_limit"), 420)
 			return
 		case 500:
@@ -112,10 +117,6 @@ func (client *Client) useStub() {
 			http.Error(w, fmt.Sprintf("%s not handled", r.RequestURI), http.StatusNotFound)
 			return
 		}
-
-		w.Header().Set("X-Podio-Auth-Ref", "app_19162664")
-		w.Header().Set("X-Rate-Limit-Limit", "1000")
-		w.Header().Set("X-Rate-Limit-Remaining", fmt.Sprintf("%d", random(0, 1000)))
 
 		buff := []byte(resp)
 
