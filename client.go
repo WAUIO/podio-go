@@ -96,6 +96,7 @@ func (client *Client) Request(method string, path string, headers map[string]str
 		}
 
 		client.Emitter.FireBackground("podio.error", podioErr, resp.StatusCode)
+		client.Emitter.FireBackground("podio.context.error", client.Context, podioErr, resp)
 
 		return podioErr
 	}
