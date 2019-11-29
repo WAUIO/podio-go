@@ -32,10 +32,10 @@ func podioError(r *http.Request, err ...string) string {
 	return fmt.Sprintf(`
 {
   "request": {
-    "url": "%s",
+    "url": "%s"
   },
-  "description": "%s",
-  "type" : "%s"
+  "error_description": "%s",
+  "error" : "%s"
 }`, r.RequestURI, description, errType)
 }
 
