@@ -3,6 +3,7 @@ package podio
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -32,6 +33,22 @@ func (client *Client) GetFile(fileId int) (file *File, err error) {
 }
 
 func (client *Client) GetFileContents(url string) ([]byte, error) {
+	body, err := client.GetFileReader(url)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := ioutil.ReadAll(body)
+	defer body.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return respBody, nil
+}
+
+func (client *Client) GetFileReader(url string) (io.ReadCloser, error) {
 	link := fmt.Sprintf("%s?oauth_token=%s", url, client.authToken.AccessToken)
 	client.Emitter.FireBackground("podio.request", "GET", url, struct {
 		Token string `json:"access_token"`
@@ -45,14 +62,7 @@ func (client *Client) GetFileContents(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return respBody, nil
+	return resp.Body, err
 }
 
 // https://developers.podio.com/doc/files/upload-file-1004361
