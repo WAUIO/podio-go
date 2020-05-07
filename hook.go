@@ -33,7 +33,7 @@ func (client *Client) HookGetFor(refType string, refId uint) (hooks []*Hook, err
 // https://developers.podio.com/doc/hooks/delete-hook-215291
 func (client *Client) HookDelete(hookId uint) (response interface{}, err error) {
 	path := fmt.Sprintf("/hook/%d", hookId)
-	err = client.Request("DELETE", path, nil, nil, &response)
+	err = client.RequestWithParams("DELETE", path, nil, nil, &response)
 	return
 }
 
