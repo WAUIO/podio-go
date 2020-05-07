@@ -43,3 +43,10 @@ func (client *Client) GetComments(refType string, refId int64) (comments []*Comm
 	err = client.Request("GET", path, nil, nil, &comments)
 	return
 }
+
+// https://developers.podio.com/doc/comments/get-a-comment-22345
+func (client *Client) GetComment(commentId int64) (comment *Comment, err error) {
+	path := fmt.Sprintf("/comment/%d/", commentId)
+	err = client.Request("GET", path, nil, nil, &comment)
+	return
+}
