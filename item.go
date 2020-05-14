@@ -261,7 +261,6 @@ type UTCDatetimeValue struct {
 	End   interface{} `json:"end_utc"`
 }
 
-
 // DateFieldSettings defines the capabilities of a date field
 type DateFieldSettings struct {
 	// Is this field shown on the calendar?
@@ -497,14 +496,11 @@ func (client *Client) GetItem(itemId int64) (item *Item, err error) {
 }
 
 // https://developers.podio.com/doc/items/add-new-item-22362
-func (client *Client) CreateItem(appId int, externalId string, fieldValues map[string]interface{}) (int64, error) {
+func (client *Client) CreateItem(appId int, fieldValues map[string]interface{}, filesValues []int) (int64, error) {
 	path := fmt.Sprintf("/item/app/%d", appId)
 	params := map[string]interface{}{
-		"fields": fieldValues,
-	}
-
-	if externalId != "" {
-		params["external_id"] = externalId
+		"fields":   fieldValues,
+		"file_ids": filesValues,
 	}
 
 	rsp := &struct {
