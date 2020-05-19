@@ -511,6 +511,22 @@ func (client *Client) CreateItem(appId int, fieldValues map[string]interface{}, 
 	return rsp.ItemId, err
 }
 
+// https://developers.podio.com/doc/items/add-new-item-22362
+func (client *Client) CreateItemSilently(appId int, fieldValues map[string]interface{}, filesValues []int) (int64, error) {
+	path := fmt.Sprintf("/item/app/%d?silent=true", appId)
+	params := map[string]interface{}{
+		"fields":   fieldValues,
+		"file_ids": filesValues,
+	}
+
+	rsp := &struct {
+		ItemId int64 `json:"item_id"`
+	}{}
+	err := client.RequestWithParams("POST", path, nil, params, rsp)
+
+	return rsp.ItemId, err
+}
+
 // https://developers.podio.com/doc/items/update-item-22363
 func (client *Client) UpdateItem(itemId int, fieldValues map[string]interface{}) error {
 	path := fmt.Sprintf("/item/%d", itemId)
