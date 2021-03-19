@@ -59,6 +59,10 @@ func (client *Client) WithContext(ctx context.Context) *Client{
 	return client
 }
 
+func (client *Client) GetAccessToken() string {
+	return client.authToken.AccessToken
+}
+
 func (client *Client) Request(method string, path string, headers map[string]string, body io.Reader, out interface{}) error {
 	req, err := http.NewRequest(method, client.URL + path, body)
 
